@@ -1,0 +1,114 @@
+#!/bin/sh
+unset IFS
+set -eu
+
+usage() {
+    echo "$0 <url>"
+    exit 1
+}
+
+if [ "$#" -lt 1 ]; then
+    usage
+fi
+
+U="$1"
+
+# check_command returns an empty string on missing command.
+# Otherwise, returns a description of the command.
+check_command() {
+    COMMAND="$1"
+    command -v "$COMMAND" 2>/dev/null ||
+        echo ''
+}
+
+curl_do() {
+    URL="$1"
+    curl "$URL"
+}
+
+wget_do() {
+    URL="$1"
+    wget -O- "$URL"
+}
+
+http_do() {
+    URL="$1"
+    http "$URL"
+}
+
+lftp_do() {
+    URL="$1"
+    lftp -c "cat $URL"
+}
+
+ftp_do() {
+    URL="$1"
+    ftp -o- "$URL"
+}
+
+ruby_do() {
+    URL="$1"
+    ruby \
+        -e "require 'open-uri'; URI.open(\"${URL}\") { |f| STDOUT.write f.read }"
+}
+
+python_do() {
+    URL="$1"
+    python \
+        -c "import sys, urllib.request; sys.stdout.buffer.write(urllib.request.urlopen(\"$1\").read())"
+}
+
+node_do() {
+    URL="$1"
+    node \
+        -e "const http = require('http'), https = require('https'), url = require('url'); const u = url.parse(\"$1\"); var client; if (u.protocol === 'https:') { client = https; } else { client = http; }; client.get(u, (res) => { res.pipe(process.stdout); });"
+}
+
+perl_do() {
+    URL="$1"
+    perl \
+        -e "use File::Fetch; File::Fetch->new(uri => \"$1\")->fetch(to => \\\$body); print \$body;"
+}
+
+lynx_do() {
+    URL="$1"
+    lynx -dump "$URL"
+}
+
+links_do() {
+    URL="$1"
+    links -dump "$URL"
+}
+
+CLIENT=
+
+if [ "$(check_command curl)" != '' ]; then
+    CLIENT='curl'
+elif [ "$(check_command wget)" != '' ]; then
+    CLIENT='wget'
+elif [ "$(check_command http)" != '' ]; then
+    CLIENT='http'
+elif [ "$(check_command lftp)" != '' ]; then
+    CLIENT='lftp'
+elif [ "$(check_command ftp)" != '' ]; then
+    CLIENT='ftp'
+elif [ "$(check_command ruby)" != '' ]; then
+    CLIENT='ruby'
+elif [ "$(check_command python)" != '' ]; then
+    CLIENT='python'
+elif [ "$(check_command node)" != '' ]; then
+    CLIENT='node'
+elif [ "$(check_command perl)" != '' ]; then
+    CLIENT='perl'
+elif [ "$(check_command lynx)" != '' ]; then
+    CLIENT='lynx'
+elif [ "$(check_command links)" != '' ]; then
+    CLIENT='links'
+else
+    echo "Found no HTTP client"
+    exit 1
+fi
+
+echo "Using ${CLIENT}..." 1>&2
+
+"${CLIENT}_do" "$U"
