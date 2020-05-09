@@ -41,45 +41,6 @@ lftp_do() {
     lftp -c "cat $URL"
 }
 
-ruby_do() {
-    URL="$1"
-    ruby \
-        -e "require 'open-uri'; URI.open(\"${URL}\") { |f| STDOUT.write f.read }"
-}
-
-python_do() {
-    URL="$1"
-    python \
-        -c "import sys, urllib.request; sys.stdout.buffer.write(urllib.request.urlopen(\"$1\").read())"
-}
-
-node_do() {
-    URL="$1"
-    node \
-        -e "const http = require('http'), https = require('https'), url = require('url'); const u = url.parse(\"$1\"); var client; if (u.protocol === 'https:') { client = https; } else { client = http; }; client.get(u, (res) => { res.pipe(process.stdout); });"
-}
-
-perl_do() {
-    URL="$1"
-    perl \
-        -e "use File::Fetch; File::Fetch->new(uri => \"$1\")->fetch(to => \\\$body); print \$body;"
-}
-
-lynx_do() {
-    URL="$1"
-    lynx -source "$URL"
-}
-
-links_do() {
-    URL="$1"
-    links -source "$URL"
-}
-
-ftp_do() {
-    URL="$1"
-    ftp -o- "$URL"
-}
-
 aria2c_do() {
     URL="$1"
     UUID="$(uuidgen)"
@@ -114,19 +75,58 @@ httrack_do() {
     find "$DIR" -type f -exec cat '{}' \;
 }
 
+lynx_do() {
+    URL="$1"
+    lynx -source "$URL"
+}
+
+links_do() {
+    URL="$1"
+    links -source "$URL"
+}
+
+ruby_do() {
+    URL="$1"
+    ruby \
+        -e "require 'open-uri'; URI.open(\"${URL}\") { |f| STDOUT.write f.read }"
+}
+
+python_do() {
+    URL="$1"
+    python \
+        -c "import sys, urllib.request; sys.stdout.buffer.write(urllib.request.urlopen(\"$1\").read())"
+}
+
+node_do() {
+    URL="$1"
+    node \
+        -e "const http = require('http'), https = require('https'), url = require('url'); const u = url.parse(\"$1\"); var client; if (u.protocol === 'https:') { client = https; } else { client = http; }; client.get(u, (res) => { res.pipe(process.stdout); });"
+}
+
+perl_do() {
+    URL="$1"
+    perl \
+        -e "use File::Fetch; File::Fetch->new(uri => \"$1\")->fetch(to => \\\$body); print \$body;"
+}
+
+ftp_do() {
+    URL="$1"
+    ftp -o- "$URL"
+}
+
 CANDIDATES="curl \
     wget \
     http \
     lftp \
+    aria2c \
+    httrack \
+    lynx \
+    links \
     ruby \
     python \
     node \
     perl \
-    lynx \
-    links \
-    ftp \
-    aria2c \
-    httrack"
+    ftp"
 
 CLIENT=
 
