@@ -80,32 +80,29 @@ links_do() {
     links -dump "$URL"
 }
 
+CANDIDATES="curl \
+    wget \
+    http \
+    lftp \
+    ftp \
+    ruby \
+    python \
+    node \
+    perl \
+    lynx \
+    links"
+
 CLIENT=
 
-if [ "$(check_command curl)" != '' ]; then
-    CLIENT='curl'
-elif [ "$(check_command wget)" != '' ]; then
-    CLIENT='wget'
-elif [ "$(check_command http)" != '' ]; then
-    CLIENT='http'
-elif [ "$(check_command lftp)" != '' ]; then
-    CLIENT='lftp'
-elif [ "$(check_command ftp)" != '' ]; then
-    CLIENT='ftp'
-elif [ "$(check_command ruby)" != '' ]; then
-    CLIENT='ruby'
-elif [ "$(check_command python)" != '' ]; then
-    CLIENT='python'
-elif [ "$(check_command node)" != '' ]; then
-    CLIENT='node'
-elif [ "$(check_command perl)" != '' ]; then
-    CLIENT='perl'
-elif [ "$(check_command lynx)" != '' ]; then
-    CLIENT='lynx'
-elif [ "$(check_command links)" != '' ]; then
-    CLIENT='links'
-else
-    echo "Found no HTTP client"
+for CANDIDATE in $CANDIDATES; do
+    if [ "$(check_command "$CANDIDATE")" != '' ]; then
+        CLIENT="$CANDIDATE"
+        break
+    fi
+done
+
+if [ "$CLIENT" = '' ]; then
+    echo "Error: No HTTP client detected"
     exit 1
 fi
 
