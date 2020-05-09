@@ -92,9 +92,26 @@ aria2c_do() {
         -d /tmp \
         -o "$UUID" \
         "$URL" \
-        >/dev/null
+        1>&2
 
     cat "$F"
+}
+
+httrack_do() {
+    URL="$1"
+    UUID="$(uuidgen)"
+    DIR="/tmp/$UUID"
+
+    # shellcheck disable=SC2064
+    trap "rm -rf $DIR" EXIT
+
+    httrack \
+        -g \
+        -O "$DIR" \
+        "$URL" \
+        1>&2
+
+    find "$DIR" -type f -exec cat '{}' \;
 }
 
 CANDIDATES="curl \
@@ -108,7 +125,8 @@ CANDIDATES="curl \
     lynx \
     links \
     ftp \
-    aria2c"
+    aria2c \
+    httrack"
 
 CLIENT=
 
