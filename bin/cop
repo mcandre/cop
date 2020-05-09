@@ -41,11 +41,6 @@ lftp_do() {
     lftp -c "cat $URL"
 }
 
-ftp_do() {
-    URL="$1"
-    ftp -o- "$URL"
-}
-
 ruby_do() {
     URL="$1"
     ruby \
@@ -72,25 +67,30 @@ perl_do() {
 
 lynx_do() {
     URL="$1"
-    lynx -dump "$URL"
+    lynx -source "$URL"
 }
 
 links_do() {
     URL="$1"
-    links -dump "$URL"
+    links -source "$URL"
+}
+
+ftp_do() {
+    URL="$1"
+    ftp -o- "$URL"
 }
 
 CANDIDATES="curl \
     wget \
     http \
     lftp \
-    ftp \
     ruby \
     python \
     node \
     perl \
     lynx \
-    links"
+    links \
+    ftp"
 
 CLIENT=
 

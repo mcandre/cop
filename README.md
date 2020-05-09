@@ -59,5 +59,4 @@ $ vast
 * Most client-specific flags are dropped.
 * Some clients lack (S)FTP((E)S) support.
 * Some older clients like `ftp` may have difficulty processing `https://`... URLs.
-* Some older clients like `lynx`, `links` may pad file contents. Such padding would yield different checksums.
 * If you accidentally spill raw binary file contents onto the terminal, try `reset`.
