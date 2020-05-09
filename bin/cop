@@ -80,6 +80,23 @@ ftp_do() {
     ftp -o- "$URL"
 }
 
+aria2c_do() {
+    URL="$1"
+    UUID="$(uuidgen)"
+    F="/tmp/$UUID"
+
+    # shellcheck disable=SC2064
+    trap "rm $F" EXIT
+
+    aria2c \
+        -d /tmp \
+        -o "$UUID" \
+        "$URL" \
+        >/dev/null
+
+    cat "$F"
+}
+
 CANDIDATES="curl \
     wget \
     http \
@@ -90,7 +107,8 @@ CANDIDATES="curl \
     perl \
     lynx \
     links \
-    ftp"
+    ftp \
+    aria2c"
 
 CLIENT=
 
