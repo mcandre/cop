@@ -2,25 +2,6 @@
 unset IFS
 set -eu
 
-usage() {
-    echo "$0 <url>"
-    exit 1
-}
-
-if [ "$#" -lt 1 ]; then
-    usage
-fi
-
-U="$1"
-
-# check_command returns an empty string on missing command.
-# Otherwise, returns a description of the command.
-check_command() {
-    COMMAND="$1"
-    command -v "$COMMAND" 2>/dev/null ||
-        echo ''
-}
-
 curl_do() {
     URL="$1"
     curl "$URL"
@@ -114,34 +95,42 @@ ftp_do() {
     ftp -o- "$URL"
 }
 
-CANDIDATES="curl \
-    wget \
-    http \
-    lftp \
-    aria2c \
-    httrack \
-    lynx \
-    links \
-    ruby \
-    python \
-    node \
-    perl \
-    ftp"
 
-CLIENT=
+# Catch all of no client is found
+_do() {
+    >&2 echo "Error: No HTTP client detected"
+    return 1;
+}
 
-for CANDIDATE in $CANDIDATES; do
-    if [ "$(check_command "$CANDIDATE")" != '' ]; then
-        CLIENT="$CANDIDATE"
-        break
-    fi
-done
+CANDIDATES=(curl
+            wget
+            http
+            lftp
+            aria2c
+            httrack
+            lynx
+            links
+            ruby
+            python
+            node
+            perl
+            ftp)
 
-if [ "$CLIENT" = '' ]; then
-    echo "Error: No HTTP client detected"
+
+if ((!$#)); then
+    echo "$0 <url>"
     exit 1
 fi
 
-echo "Using ${CLIENT}..." 1>&2
+U="$1"
+
+CLIENT=
+for CANDIDATE in ${CANDIDATES[@]}; do
+    if type "$CANDIDATE" &>/dev/null; then
+        CLIENT="$CANDIDATE"
+        >&2 echo "Using ${CLIENT}..."
+        break
+    fi
+done
 
 "${CLIENT}_do" "$U"
