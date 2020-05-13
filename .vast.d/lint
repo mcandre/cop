@@ -4,7 +4,5 @@ set -euf
 
 v-shfmt
 v-bashate
-# Pending https://sourceforge.net/p/checkbaskisms/checkbashisms/
-# v-shlint
 v-shellcheck
 v-funk
